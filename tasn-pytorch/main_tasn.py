@@ -21,13 +21,12 @@ import torchvision.models as models
 import mymodel# as mymodel
 
 
-
 model_names = sorted(name for name in models.__dict__
     if name.islower() and not name.startswith("__")
     and callable(models.__dict__[name]))
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
-parser.add_argument('data', metavar='DIR',
+parser.add_argument('--data', metavar='DIR',
                     help='path to dataset')
 parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet18',
 #                    choices=model_names,
@@ -143,7 +142,7 @@ def main_worker(gpu, ngpus_per_node, args):
 
     
 #    att_model = eval('mymodel.' + args.arch + '.att_model')()
-    model = eval('mymodel.' + args.arch + '.model')()
+    model = eval('mymodel.' + args.arch + '.model')() #获取模型
 #    trilinear = eval('mymodel.' + args.arch + '.trilinear')()
     
 
@@ -175,7 +174,7 @@ def main_worker(gpu, ngpus_per_node, args):
             # DistributedDataParallel will divide and allocate batch_size to all
             # available GPUs if device_ids are not set
             model = torch.nn.parallel.DistributedDataParallel(model)
-    elif args.gpu is not None:
+    elif args.gpu is not None:  #此种情况
         torch.cuda.set_device(args.gpu)
         model = model.cuda(args.gpu)
     else:
@@ -255,7 +254,7 @@ def main_worker(gpu, ngpus_per_node, args):
         validate(val_loader, model, criterion, args)
         return
 
-    for epoch in range(args.start_epoch, args.epochs):
+    for epoch in range(args.start_epoch, args.epochs):  #模型训练
         if args.distributed:
             train_sampler.set_epoch(epoch)
         adjust_learning_rate(optimizer, epoch, args)
@@ -327,7 +326,6 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
             progress.display(i)
 
 
-
 def validate(val_loader, model, criterion, args):
     batch_time = AverageMeter('Time', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
@@ -370,7 +368,6 @@ def validate(val_loader, model, criterion, args):
               .format(top1=top1, top5=top5))
 
     return top1.avg
-
 
 
 def save_checkpoint(state, is_best, filename='/v-helzhe/model/tasn/checkpoint.pth.tar'):
